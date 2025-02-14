@@ -374,6 +374,7 @@ export const DataThread: FC<{}> = function ({ }) {
         }
 
         // prepare the chart to be rendered
+        console.log("assembling chart", chart);
         let assembledChart = assembleChart(chart, conceptShelfItems, extTable);
         assembledChart["background"] = "transparent";
 

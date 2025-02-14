@@ -6,6 +6,7 @@ import sys
 
 from data_formulator.agents.agent_utils import extract_json_objects, generate_data_summary, extract_code_from_gpt_response
 import data_formulator.py_sandbox as py_sandbox
+from data_formulator.agents.agent_visualize_describe import DescVisualizeAgent
 
 import traceback
 
@@ -194,6 +195,7 @@ class DataTransformationAgentV2(object):
 
     def __init__(self, client, system_prompt=None):
         self.client = client
+        self.desc_visualize_agent = DescVisualizeAgent(client)
         self.system_prompt = system_prompt if system_prompt is not None else SYSTEM_PROMPT
 
     def process_gpt_response(self, input_tables, messages, response):
@@ -232,7 +234,11 @@ class DataTransformationAgentV2(object):
 
                     if result['status'] == 'ok':
                         # parse the content
+                        result['description'] = self.desc_visualize_agent.run(refined_goal['visualization_fields'], result['content'])
                         result['content'] = json.loads(result['content'])
+                        # result['description'] = "Null"
+                        logger.info(f"=== Description and Visualization ===>")
+                        logger.info(result['description'])
                     else:
                         logger.info(result['content'])
                 except Exception as e:
@@ -290,7 +296,7 @@ class DataTransformationAgentV2(object):
         updated_dialog = [{"role":"system", "content": self.system_prompt}, *dialog[1:]]
 
         messages = [*updated_dialog, {"role":"user", 
-                              "content": f"Update the code above based on the following instruction:\n\n{json.dumps(goal, indent=4)}"}]
+                            "content": f"Update the code above based on the following instruction:\n\n{json.dumps(goal, indent=4)}"}]
 
         response = completion_response_wrapper(self.client, messages, n)
 

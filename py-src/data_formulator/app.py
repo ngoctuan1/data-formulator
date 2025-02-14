@@ -2,6 +2,7 @@
 # Licensed under the MIT License.
 
 import argparse
+from traceback import print_exc
 import random
 import sys
 import os
@@ -132,6 +133,8 @@ def get_example_dataset_list():
             info_obj = {'name': name, 'challenges': challenges, 'snapshot': vega_data(name).to_json(orient='records')}
             dataset_info.append(info_obj)
         except:
+            logger.info(f"Failed to load dataset {name}")
+            print_exc()
             pass
     
     response = flask.jsonify(dataset_info)
@@ -430,8 +433,8 @@ def derive_data():
         print(instruction)
 
         mode = "transform"
-        if len(new_fields) == 0:
-            mode = "recommendation"
+        # if len(new_fields) == 0:
+        #     mode = "recommendation"
 
         if mode == "recommendation":
             # now it's in recommendation mode
@@ -440,7 +443,7 @@ def derive_data():
         else:
             agent = DataTransformationAgentV2(client=client)
             results = agent.run(input_tables, instruction, [field['name'] for field in new_fields])
-
+        logger.info("Results Derive: " + str(results[0]['agent']))
         repair_attempts = 0
         while results[0]['status'] == 'error' and repair_attempts == 0: # only try once
             error_message = results[0]['content']
@@ -499,6 +502,7 @@ def refine_data():
         response = flask.jsonify({ "token": "", "status": "error", "results": []})
 
     response.headers.add('Access-Control-Allow-Origin', '*')
+    logger.info(f"Response: {results}")
     return response
 
 @app.route('/code-expl', methods=['GET', 'POST'])

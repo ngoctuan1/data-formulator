@@ -25,4 +25,5 @@ py-src/data_formulator/agents/agent_generic_py_concept.py
 py-src/data_formulator/agents/agent_py_concept_derive.py
 py-src/data_formulator/agents/agent_sort_data.py
 py-src/data_formulator/agents/agent_utils.py
+py-src/data_formulator/agents/agent_visualize_describe.py
 py-src/data_formulator/agents/client_utils.py
